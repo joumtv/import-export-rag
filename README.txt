@@ -170,17 +170,17 @@ User
 React Frontend
   ↓
 FastAPI Backend
-  ↓
-Document Retrieval (RAG)
-  ↓
-Confidence Evaluation
-  ↓
-AI Answer Generation
-  ↓
-Answer + Sources
-  ↓
-SQLite Database
-Question History
+  ├── Document Retrieval (RAG)
+  │         ↓
+  │   Confidence Evaluation
+  │         ↓
+  │   AI Answer Generation
+  │         ↓
+  │   Answer + Sources
+  │
+  └── SQLite Database
+            ↓
+      Question History
 
 Demo question (English - vietnamese)
 -------------
