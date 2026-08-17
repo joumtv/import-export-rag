@@ -11,7 +11,8 @@ def evaluate_confidence(search_results: list):
     # Get the highest similarity score
     top_score = search_results[0]["score"]
 
-    if top_score >= 0.60:
+    # HIGH confidence
+    if top_score >= 0.75:
         return {
             "level": "HIGH",
             "should_answer": True,
@@ -19,14 +20,16 @@ def evaluate_confidence(search_results: list):
             "message": "Strong relevant evidence was found."
         }
 
-    elif top_score >= 0.40:
+    # MEDIUM confidence
+    elif top_score >= 0.60:
         return {
             "level": "MEDIUM",
             "should_answer": True,
             "score": top_score,
-            "message": "Some relevant information was found. Human verification is recommended."
+            "message": "Relevant information was found, but human verification is recommended."
         }
 
+    # LOW confidence
     else:
         return {
             "level": "LOW",

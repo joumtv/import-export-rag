@@ -59,75 +59,78 @@ def search(question: str):
         "question": question,
         "results": results
     }
+
 @app.get("/ask")
 def ask(question: str):
 
-    # Step 1: Search relevant document chunks
+    #Search relevant document chunks
     results = search_documents(question)
 
-    # Step 2: Evaluate retrieval confidence
+    # valuate retrieval confidence
     confidence = evaluate_confidence(results)
 
-    # Default values
     answer = None
     sources = []
     status = "HUMAN_REVIEW_REQUIRED"
 
-    # Step 3: Only call AI if retrieval confidence is sufficient
+    # Only call AI if retrieval confidence is sufficient
     if confidence["should_answer"]:
 
-        # Step 4: Generate answer from retrieved context
+        # Generate answer
         ai_result = generate_answer(question, results)
 
-        # Step 5: Check if AI service returned an error
+        # Handle AI service error
         if not ai_result["success"]:
 
-            answer = None
             status = "AI_SERVICE_UNAVAILABLE"
 
-            confidence["message"] = ai_result["error"]
+            return {
+                "question": question,
+                "answer": None,
+                "confidence": confidence,
+                "status": status,
+                "sources": [],
+                "error": ai_result["error"]
+            }
+
+        answer = ai_result["answer"]
+
+        abstain_message = (
+            "I could not find enough information in the provided "
+            "documents to answer this question."
+        )
+
+        # check whether AI abstained
+        if abstain_message.lower() in answer.lower():
+
+            answer = None
+
+            confidence = {
+                "level": "LOW",
+                "should_answer": False,
+                "score": confidence["score"],
+                "message": (
+                    "Relevant text was retrieved, but the evidence "
+                    "was not sufficient to answer the question reliably."
+                )
+            }
+
+            status = "HUMAN_REVIEW_REQUIRED"
 
         else:
 
-            answer = ai_result["answer"]
+            # Answer successfully generated
+            status = "ANSWER_GENERATED"
 
-            abstain_message = (
-                "I could not find enough information in the provided "
-                "documents to answer this question."
-            )
+            best_result = results[0]
 
-            # Step 6: Check whether AI abstained
-            if abstain_message.lower() in answer.lower():
+            sources = [{
+                "document_name": best_result["document_name"],
+                "page": best_result["page"],
+                "score": round(best_result["score"], 3)
+            }]
 
-                answer = None
-
-                confidence = {
-                    "level": "LOW",
-                    "should_answer": False,
-                    "score": confidence["score"],
-                    "message": (
-                        "Relevant text was retrieved, but the evidence "
-                        "was not sufficient to answer the question reliably."
-                    )
-                }
-
-                status = "HUMAN_REVIEW_REQUIRED"
-
-            else:
-
-                # Step 7: AI successfully generated an answer
-                status = "ANSWER_GENERATED"
-
-                # Use the most relevant retrieved source
-                best_result = results[0]
-
-                sources = [{
-                    "document_name": best_result["document_name"],
-                    "page": best_result["page"],
-                    "score": round(best_result["score"], 3)
-                }]
-
-    # Step 8: Save every request to database
+    # Save to database
     db = SessionLocal()
 
     try:
@@ -148,13 +151,39 @@ def ask(question: str):
 
         db.close()
 
-    # Step 9: Return API response
+    # Return response
     return {
         "question": question,
         "answer": answer,
         "confidence": confidence,
         "status": status,
-        "sources": sources,
-        "error": ai_result["error"] if confidence["should_answer"] and not ai_result["success"] else None
-
+        "sources": sources
     }
+
+@app.get("/history")
+def get_history():
+
+    db = SessionLocal()
+
+    try:
+        history = (
+            db.query(QuestionHistory)
+            .order_by(QuestionHistory.created_at.desc())
+            .all()
+        )
+
+        return [
+            {
+                "id": item.id,
+                "question": item.question,
+                "answer": item.answer,
+                "confidence_score": item.confidence_score,
+                "confidence_level": item.confidence_level,
+                "status": item.status,
+                "created_at": item.created_at
+            }
+            for item in history
+        ]
+
+    finally:
+        db.close()

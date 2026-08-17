@@ -1,12 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+
+const API_URL = "http://127.0.0.1:8000";
 
 function App() {
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Load history
+  const loadHistory = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/history`
+      );
+
+      setHistory(response.data);
+
+    } catch (err) {
+      console.error("Could not load history:", err);
+    }
+  };
+
+  // Load history when page starts
+  useEffect(() => {
+    axios
+      .get(`${API_URL}/history`)
+      .then((response) => {
+        setHistory(response.data);
+      })
+      .catch((err) => {
+        console.error("Could not load history:", err);
+      });
+  }, []);
+
 
   const askQuestion = async () => {
     if (!question.trim()) {
@@ -19,7 +49,7 @@ function App() {
 
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/ask",
+        `${API_URL}/ask`,
         {
           params: {
             question: question
@@ -31,6 +61,9 @@ function App() {
 
       setResult(response.data);
 
+      // Reload history after asking a new question
+      await loadHistory();
+
     } catch (err) {
       console.error("Frontend error:", err);
 
@@ -39,13 +72,16 @@ function App() {
         err.message ||
         "Could not connect to the AI backend."
       );
+
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
     <div className="app">
+
       <header>
         <h1>Import-Export Regulation AI</h1>
 
@@ -55,7 +91,9 @@ function App() {
         </p>
       </header>
 
+
       <div className="question-card">
+
         <h2>Ask a question</h2>
 
         <textarea
@@ -70,7 +108,9 @@ function App() {
         >
           {loading ? "Thinking..." : "Ask AI"}
         </button>
+
       </div>
+
 
       {error && (
         <div className="error">
@@ -78,10 +118,12 @@ function App() {
         </div>
       )}
 
+
       {result && (
         <div className="result-card">
 
           <div className="result-header">
+
             <h2>AI Response</h2>
 
             <span
@@ -89,7 +131,9 @@ function App() {
             >
               {result.confidence?.level} CONFIDENCE
             </span>
+
           </div>
+
 
           {result.answer ? (
             <p className="answer">
@@ -101,11 +145,14 @@ function App() {
             </p>
           )}
 
+
           <hr />
+
 
           <p>
             <strong>Status:</strong> {result.status}
           </p>
+
 
           {result.sources && result.sources.length > 0 && (
             <>
@@ -113,11 +160,15 @@ function App() {
 
               {result.sources.map((source, index) => (
                 <div className="source" key={index}>
-                  <strong>{source.document_name}</strong>
+
+                  <strong>
+                    {source.document_name}
+                  </strong>
 
                   <span>
                     Page {source.page}
                   </span>
+
                 </div>
               ))}
             </>
@@ -125,6 +176,77 @@ function App() {
 
         </div>
       )}
+
+
+      {/* HISTORY */}
+
+      <div className="history-section">
+
+        <h2>Question History</h2>
+
+        {history.length === 0 ? (
+
+          <p className="no-history">
+            No question history yet.
+          </p>
+
+        ) : (
+
+          history.map((item) => (
+
+            <div
+              className="history-card"
+              key={item.id}
+            >
+
+              <div className="history-header">
+
+                <span className="history-number">
+                  #{item.id}
+                </span>
+
+                <span
+                  className={`confidence ${item.confidence_level?.toLowerCase()}`}
+                >
+                  {item.confidence_level} CONFIDENCE
+                </span>
+
+              </div>
+
+
+              <h3>Question</h3>
+
+              <p>
+                {item.question}
+              </p>
+
+
+              <h3>Answer</h3>
+
+              <p>
+                {item.answer || "No answer generated."}
+              </p>
+
+
+              <p className="history-status">
+                <strong>Status:</strong>{" "}
+                {item.status}
+              </p>
+
+
+              {item.created_at && (
+                <p className="history-date">
+                  {new Date(item.created_at).toLocaleString()}
+                </p>
+              )}
+
+            </div>
+
+          ))
+        )}
+
+      </div>
+
     </div>
   );
 }

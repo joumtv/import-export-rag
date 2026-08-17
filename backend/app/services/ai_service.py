@@ -1,23 +1,29 @@
 import os
 from dotenv import load_dotenv
-from google import genai
+from openai import OpenAI
 
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
+
+client = OpenAI(
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1"
 )
 
 
 def generate_answer(question: str, search_results: list):
 
-    context = ""
+    try:
 
-    for i, result in enumerate(search_results, start=1):
-        context += f"""
+        context = ""
+
+        for i, result in enumerate(search_results, start=1):
+
+            context += f"""
 [SOURCE {i}]
 Document: {result['document_name']}
 Page: {result['page']}
+Relevance score: {result['score']:.3f}
 
 Content:
 {result['text']}
@@ -25,18 +31,22 @@ Content:
 --------------------
 """
 
-    prompt = f"""
+        prompt = f"""
 You are an AI assistant for import-export regulations.
 
-Answer the user's question using ONLY the retrieved document context.
+Answer the user's question using ONLY the retrieved document context below.
 
 STRICT RULES:
 
 1. Do NOT use outside knowledge.
-2. Do NOT invent facts.
-3. Only use information supported by the context.
+2. Do NOT invent facts, laws, regulations, or requirements.
+3. Only use information directly supported by the context.
 4. If the context does not contain enough information, respond exactly:
-"I could not find enough information in the provided documents to answer this question."
+
+I could not find enough information in the provided documents to answer this question.
+
+5. Do not mention irrelevant sources.
+6. Keep the answer clear and concise.
 
 USER QUESTION:
 {question}
@@ -45,25 +55,33 @@ RETRIEVED DOCUMENT CONTEXT:
 {context}
 """
 
-    try:
+        response = client.chat.completions.create(
 
-        response = client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt
+            # Change this model if necessary
+            model="openai/gpt-4o-mini",
+
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
+
+        answer = response.choices[0].message.content
 
         return {
             "success": True,
-            "answer": response.text,
+            "answer": answer,
             "error": None
         }
 
     except Exception as e:
 
-        error_message = str(e)
+        print(f"AI Service Error: {e}")
 
         return {
             "success": False,
             "answer": None,
-            "error": error_message
+            "error": str(e)
         }

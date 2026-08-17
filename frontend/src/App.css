@@ -156,3 +156,61 @@ button:disabled {
   border-radius: 8px;
   margin-bottom: 20px;
 }
+
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-section {
+  margin-top: 40px;
+}
+
+.history-section h2 {
+  margin-bottom: 20px;
+}
+
+.history-card {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.history-number {
+  font-weight: bold;
+  color: #555;
+}
+
+.history-card h3 {
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.history-card p {
+  line-height: 1.6;
+}
+
+.history-status {
+  margin-top: 15px;
+}
+
+.history-date {
+  font-size: 13px;
+  color: #888;
+  margin-top: 10px;
+}
+
+.no-history {
+  color: #888;
+}

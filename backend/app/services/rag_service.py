@@ -3,8 +3,7 @@ from app.services.document_service import load_documents
 import numpy as np
 
 
-# Multilingual embedding model
-# Supports English ↔ Vietnamese semantic search
+# Multilingual embedding model, support Eng-Viet lang
 model = SentenceTransformer(
     "paraphrase-multilingual-MiniLM-L12-v2"
 )
@@ -52,7 +51,7 @@ def search_documents(
                 "score": float(score)
             })
 
-    # Sort by relevance
+    # Sort by relevance 
     results = sorted(
         results,
         key=lambda x: x["score"],

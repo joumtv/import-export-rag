@@ -19,9 +19,8 @@ def extract_text_from_pdf(pdf_path: str):
 
 
 def split_text(text, chunk_size=500, overlap=100):
-    """
-    Split text into smaller chunks.
-    """
+
+    #Split text into smaller chunks.then check the answer 
 
     chunks = []
 
