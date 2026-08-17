@@ -8,6 +8,7 @@ client = genai.Client(
     api_key=os.getenv("GEMINI_API_KEY")
 )
 
+
 def generate_answer(question: str, search_results: list):
 
     context = ""
@@ -17,7 +18,6 @@ def generate_answer(question: str, search_results: list):
 [SOURCE {i}]
 Document: {result['document_name']}
 Page: {result['page']}
-Relevance score: {result['score']:.3f}
 
 Content:
 {result['text']}
@@ -28,21 +28,15 @@ Content:
     prompt = f"""
 You are an AI assistant for import-export regulations.
 
-Answer the user's question using ONLY the retrieved document
-context below.
+Answer the user's question using ONLY the retrieved document context.
 
 STRICT RULES:
 
 1. Do NOT use outside knowledge.
-2. Do NOT invent facts, laws, regulations, or requirements.
-3. Only use information directly supported by the context.
+2. Do NOT invent facts.
+3. Only use information supported by the context.
 4. If the context does not contain enough information, respond exactly:
-   "I could not find enough information in the provided documents to answer this question."
-5. Do not mention irrelevant sources.
-6. At the end of the answer, add:
-
-Sources:
-- Document name, Page number
+"I could not find enough information in the provided documents to answer this question."
 
 USER QUESTION:
 {question}
@@ -51,9 +45,25 @@ RETRIEVED DOCUMENT CONTEXT:
 {context}
 """
 
-    response = client.models.generate_content(
-        model="gemini-3.5-flash",
-        contents=prompt
-    )
+    try:
 
-    return response.text
+        response = client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=prompt
+        )
+
+        return {
+            "success": True,
+            "answer": response.text,
+            "error": None
+        }
+
+    except Exception as e:
+
+        error_message = str(e)
+
+        return {
+            "success": False,
+            "answer": None,
+            "error": error_message
+        }

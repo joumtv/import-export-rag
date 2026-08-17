@@ -3,14 +3,18 @@ from app.services.document_service import load_documents
 import numpy as np
 
 
-# Load AI embedding model
-model = SentenceTransformer("all-MiniLM-L6-v2")
+# Multilingual embedding model
+# Supports English ↔ Vietnamese semantic search
+model = SentenceTransformer(
+    "paraphrase-multilingual-MiniLM-L12-v2"
+)
 
 
 def cosine_similarity(a, b):
     return np.dot(a, b) / (
         np.linalg.norm(a) * np.linalg.norm(b)
     )
+
 
 def search_documents(
     question,
@@ -25,7 +29,7 @@ def search_documents(
     if not documents:
         return []
 
-    # Extract text
+    # Extract text from all chunks
     texts = [doc["text"] for doc in documents]
 
     # Create embeddings
@@ -41,14 +45,14 @@ def search_documents(
             document_embeddings[i]
         )
 
-        # Only keep sufficiently relevant chunks
+        # Keep only relevant chunks
         if score >= min_score:
             results.append({
                 **document,
                 "score": float(score)
             })
 
-    # Sort highest score first
+    # Sort by relevance
     results = sorted(
         results,
         key=lambda x: x["score"],

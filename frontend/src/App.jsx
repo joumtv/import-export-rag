@@ -5,13 +5,11 @@ import "./App.css";
 function App() {
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleAsk = async () => {
+  const askQuestion = async () => {
     if (!question.trim()) {
-      setError("Please enter a question.");
       return;
     }
 
@@ -29,12 +27,17 @@ function App() {
         }
       );
 
+      console.log("Backend response:", response.data);
+
       setResult(response.data);
 
     } catch (err) {
-      console.error(err);
+      console.error("Frontend error:", err);
+
       setError(
-        "Could not connect to the AI backend. Make sure the FastAPI server is running."
+        err.response?.data?.detail ||
+        err.message ||
+        "Could not connect to the AI backend."
       );
     } finally {
       setLoading(false);
@@ -43,97 +46,85 @@ function App() {
 
   return (
     <div className="app">
-      <div className="container">
+      <header>
+        <h1>Import-Export Regulation AI</h1>
 
-        <header className="header">
-          <h1>Import-Export Regulation AI</h1>
-          <p>
-            Ask questions about import-export regulations and receive
-            answers based on the available documents.
-          </p>
-        </header>
+        <p>
+          Ask questions about import-export regulations and receive answers
+          based on the available documents.
+        </p>
+      </header>
 
-        <main>
-          <div className="question-card">
-            <label htmlFor="question">
-              Ask a question
-            </label>
+      <div className="question-card">
+        <h2>Ask a question</h2>
 
-            <textarea
-              id="question"
-              placeholder="Example: What documents are required for customs clearance?"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              rows="4"
-            />
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Type your question here..."
+        />
 
-            <button
-              onClick={handleAsk}
-              disabled={loading}
+        <button
+          onClick={askQuestion}
+          disabled={loading}
+        >
+          {loading ? "Thinking..." : "Ask AI"}
+        </button>
+      </div>
+
+      {error && (
+        <div className="error">
+          {error}
+        </div>
+      )}
+
+      {result && (
+        <div className="result-card">
+
+          <div className="result-header">
+            <h2>AI Response</h2>
+
+            <span
+              className={`confidence ${result.confidence?.level?.toLowerCase()}`}
             >
-              {loading ? "Thinking..." : "Ask AI"}
-            </button>
+              {result.confidence?.level} CONFIDENCE
+            </span>
           </div>
 
-          {error && (
-            <div className="error">
-              {error}
-            </div>
+          {result.answer ? (
+            <p className="answer">
+              {result.answer}
+            </p>
+          ) : (
+            <p>
+              No answer was generated. Human review may be required.
+            </p>
           )}
 
-          {result && (
-            <div className="result-card">
+          <hr />
 
-              <div className="result-header">
-                <h2>AI Response</h2>
+          <p>
+            <strong>Status:</strong> {result.status}
+          </p>
 
-                <span
-                  className={`confidence ${result.confidence.level.toLowerCase()}`}
-                >
-                  {result.confidence.level} CONFIDENCE
-                </span>
-              </div>
+          {result.sources && result.sources.length > 0 && (
+            <>
+              <h2>Sources</h2>
 
-              {result.answer ? (
-                <div className="answer">
-                  {result.answer}
+              {result.sources.map((source, index) => (
+                <div className="source" key={index}>
+                  <strong>{source.document_name}</strong>
+
+                  <span>
+                    Page {source.page}
+                  </span>
                 </div>
-              ) : (
-                <div className="human-review">
-                  <h3>Human Review Required</h3>
-                  <p>
-                    {result.confidence.message}
-                  </p>
-                  <p>
-                    The available documents do not contain enough reliable
-                    information to answer this question.
-                  </p>
-                </div>
-              )}
-
-              <div className="status">
-                <strong>Status:</strong> {result.status}
-              </div>
-
-              {result.sources.length > 0 && (
-                <div className="sources">
-                  <h3>Sources</h3>
-
-                  {result.sources.map((source, index) => (
-                    <div className="source" key={index}>
-                      <strong>{source.document_name}</strong>
-                      <span>Page {source.page}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-            </div>
+              ))}
+            </>
           )}
 
-        </main>
-
-      </div>
+        </div>
+      )}
     </div>
   );
 }
