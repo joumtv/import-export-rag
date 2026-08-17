@@ -182,6 +182,40 @@ Answer + Sources
 SQLite Database
 Question History
 
+Demo question (English - vietnamese)
+-------------
+1. What are Members encouraged to use as a basis for import, export, or transit formalities and procedures?
+expectation answer: 
+    Members are encouraged to use relevant international standards or parts thereof as a basis for their import, export, or transit formalities and procedures.
+
+2. What responsibilities does each Member have regarding cooperation and coordination among border control authorities and agencies?
+expectation answer:
+    Each Member shall ensure that its authorities and agencies responsible for border controls and procedures related to the importation, 
+    exportation, and transit of goods cooperate with one another and coordinate their activities to facilitate trade. Additionally, they shall, 
+    to the extent possible and practicable, cooperate on mutually agreed terms with other Members sharing a common border to coordinate procedures at border crossings. 
+    This may include alignment of working days and hours, alignment of procedures and formalities, development and sharing of common facilities, and joint controls.
+
+3. What does the Agreement say about cooperation between border control authorities?
+expectation answer:
+    The Agreement states that each Member shall ensure cooperation and coordination among their authorities and agencies responsible for border controls to facilitate trade. 
+    Additionally, Members are encouraged to cooperate on mutually agreed terms with neighboring Members to coordinate border crossing procedures. 
+    This cooperation may include aligning working days and hours, procedures and formalities, developing common facilities, and conducting joint controls.
+
+4. Người khai hải quan có những quyền và nghĩa vụ gì theo quy định của Luật Hải quan?
+expectation answer:
+    Người khai hải quan có những quyền và nghĩa vụ sau theo quy định của Luật Hải quan: 
+    Nghĩa vụ:
+    1. Khai hải quan và làm thủ tục hải quan theo quy định.
+    2. Cung cấp đầy đủ, chính xác thông tin để cơ quan hải quan thực hiện xác định trước mã số, xuất xứ, trị giá hải quan đối với hàng hóa.
+    3. Chịu trách nhiệm trước pháp luật về sự xác thực của nội dung đã khai và các chứng từ đã nộp, xuất trình.
+    Quyền hạn không được đề cập trong các tài liệu được cung cấp.
+
+5. Cơ quan hải quan có trách nhiệm và quyền hạn gì trong việc thu thập và cung cấp thông tin hải quan?
+expectation answer:
+    Cơ quan hải quan có trách nhiệm thu thập thông tin từ các nguồn như hoạt động nghiệp vụ hải quan và bộ, cơ quan ngang bộ có liên quan. 
+    Đồng thời, tổ chức, cá nhân cũng có quyền yêu cầu cơ quan hải quan cung cấp thông tin liên quan đến quyền, nghĩa vụ của mình. 
+    Các bên liên quan đến hoạt động xuất khẩu, nhập khẩu cũng có trách nhiệm cung cấp thông tin cho cơ quan hải quan theo quy định của pháp luật.
+
 # Author
 
 Mitthavong Benjouly
